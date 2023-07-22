@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <title>Todo List</title>
+    <style>
+      body {
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+      }
+
+      body {
+        background-image: linear-gradient(
+            30deg,
+            rgba(11, 0, 193, 0.6) 0%,
+            rgba(87, 0, 182, 0.5) 50%,
+            rgba(160, 0, 171, 0.6) 100%
+          ),
+          url("https://media.istockphoto.com/id/1035462384/photo/close-up-woman-hand-writing-on-notebook.jpg?s=612x612&w=0&k=20&c=xVEbAAJ3mnolrGjQ5WDoSUAlofUAkCp1mYuDwLFYWiM=");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+      }
+
+      @media (max-width: 991px) {
+        .todo-container {
+          max-width: 100%;
+        }
+      }
+
+      th,
+      td {
+        min-width: 100px;
+        max-width: 300px;
+        overflow-x: auto;
+      }
+
+      .todo-container {
+        min-width: 1000px;
+        width: fit-content;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .heading {
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: #ffffff;
+        margin-bottom: 20px;
+        letter-spacing: 8px;
+      }
+
+      .task-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 50px;
+      }
+
+      .task-input {
+        padding: 10px;
+        width: 220px;
+        border-radius: 5px;
+      }
+
+      .task-input::placeholder {
+        color: #999;
+      }
+
+      .category-input,
+      .due-date-input,
+      .priority-input {
+        flex: 1;
+      }
+
+      .category-input,
+      .priority-input {
+        max-width: 150px;
+      }
+
+      .add-task-button {
+        padding: 10px 15px;
+        background-color: #00aec1;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.2s;
+      }
+
+      .add-task-button:hover {
+        background-color: #0056b3;
+      }
+
+      .table-wrapper {
+        border-radius: 10px; /* Add this property for rounded corners */
+        overflow: hidden; /* Ensure that the rounded corners are visible */
+      }
+
+      .task-table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        border-radius: 10px;
+        width: 100%;
+      }
+
+      .task-table th,
+      .task-table td {
+        padding: 15px;
+        text-align: center;
+        border-right: 1px solid #ccc;
+      }
+
+      .task-table th {
+        background-color: #1976d9;
+        color: #fff;
+        /* text-transform: uppercase; */
+      }
+
+      .task-table tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .task-table tbody td {
+        border-top: 1px solid #ccc;
+      }
+
+      .status-cell {
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+      }
+
+      .edit-icon,
+      .delete-icon,
+      .add-subtask-icon {
+        color: #007bff;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .edit-icon:hover,
+      .delete-icon:hover,
+      .add-subtask-icon:hover {
+        color: #0056b3;
+      }
+
+      .add-subtask-row {
+        background-color: #f2f2f2;
+      }
+
+      .subtask-table {
+        width: 100%;
+      }
+
+      .subtask-table th,
+      .subtask-table td {
+        padding: 8px;
+      }
+
+      .subtask-input {
+        width: 100%;
+        padding: 5px;
+        border: none;
+        border-radius: 5px;
+      }
+
+      .due-date-input {
+        max-width: 150px;
+        position: relative;
+      }
+
+      input,
+      select {
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 0 10px;
+      }
+
+      .subtask-input-container {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .subtask-input {
+        padding: 10px;
+        width: 200px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
+
+      .subtask-input::placeholder {
+        color: #999;
+      }
+
+      .add-subtask-button {
+        padding: 10px 15px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+      }
+
+      .add-subtask-button:hover {
+        background-color: #0056b3;
+      }
+
+      .input[data-name="subtask"] {
+        height: 40px;
+        width: 200px;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 0 10px;
+        margin: 0 10px;
+      }
+
+      .input[data-name="category"] {
+        height: 40px;
+        width: 150px;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 0 10px;
+        margin: 0 10px;
+      }
+
+      .input[data-name="taskDetails"] {
+        height: 40px;
+        width: 150px;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 0 10px;
+        margin: 0 10px;
+      }
+
+      .input[data-name="dueDate"] {
+        height: 40px;
+        width: 100px;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 0 10px;
+        margin: 0 10px;
+      }
+
+      .input[data-name="priority"] {
+        height: 40px;
+        width: 100px;
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 0 10px;
+        margin: 0 10px;
+      }
+
+      .btnSaveSubtask,
+      .btnRemoveSub {
+        margin: 0 10px;
+      }
+
+      table {
+        margin: auto;
+        overflow-x: scroll;
+      }
+
+      .filter-container {
+        position: relative;
+        right: 0;
+      }
+
+      .filter-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+      }
+
+      /* Adjust the filter label and dropdown styles */
+      .filter-container label {
+        font-size: 16px;
+        color: #ffffff;
+      }
+
+      .filter-container select {
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 5px 10px;
+      }
+
+      label {
+        font-size: 15px !important;
+        margin-left: 20px;
+      }
+
+      .searchTask {
+        width: 200px !important;
+      }
+
+      .btn {
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+      }
+
+      .btnDone {
+        background-color: rgb(199, 199, 50);
+      }
+
+      .btnEdit {
+        background-color: rgb(217, 132, 58);
+      }
+
+      .btnRemove,
+      .btnRemoveSub {
+        background-color: rgb(217, 58, 58);
+      }
+
+      .btnAddSubtask {
+        background-color: rgb(148, 147, 147);
+      }
+
+      .completed-task {
+        color: green !important; /* Light green background color for completed tasks */
+      }
+
+      .undone-task {
+        background-color: #f7c8c8; /* Light red background color for undone tasks */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="todo-container">
+      <h1 class="heading">TODO</h1>
+      <div class="task-form">
+        <input
+          class="task-input"
+          type="text"
+          id="taskInput"
+          placeholder="Enter Task Details"
+        />
+        <input
+          class="category-input"
+          type="text"
+          id="categoryInput"
+          placeholder="Enter Category"
+        />
+        <input
+          id="dueDateInput"
+          placeholder="Enter Due Date"
+          class="due-date-input"
+          type="text"
+          onfocus="(this.type='date')"
+          onblur="(this.type='text')"
+          id="dueDateInput"
+        />
+
+        <select class="priority-input" id="priorityInput">
+          <option value="N.A" disabled selected>Select Priority</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        <button class="add-task-button" onclick="addTask()">Add Task</button>
+      </div>
+      <div class="filter-container">
+        <label for="priorityFilter">Filter by Priority:</label>
+        <select id="priorityFilter">
+          <option value="all">All</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        <label for="sortByDueDate">Sort by Due Date:</label>
+        <select id="sortByDueDate">
+          <option value="none">None</option>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+
+        <!-- search bar -->
+        <label for="priorityFilter">Search:</label>
+        <input
+          class="task-input searchTask"
+          type="text"
+          id="searchInput"
+          placeholder="Search by Task Details"
+        />
+      </div>
+      <div class="table-wrapper">
+        <table class="task-table" id="taskTable">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Category</th>
+              <th>Due Date</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="taskList"></tbody>
+        </table>
+      </div>
+    </div>
+    <script>
+      let tasks = [];
+      let originalTasks = [];
+
+      const priorityInput = document.getElementById("priorityInput");
+
+      function renderSubtasks(subtasks, taskId) {
+        let subtaskRows = "";
+        for (let i = 0; i < subtasks.length; i++) {
+          const subtask = subtasks[i];
+
+          subtaskRows += `
+        <tr data-subtask-id="${
+          subtask.id
+        }" data-task-id="${taskId}" id="subtask-row-${taskId}-${subtask.id}">
+      <td>${
+        subtask.isEditing
+          ? `<input class="inputEdit2 input" type="text" value="${subtask.taskDetails}" data-task-index="${taskId}" data-subtask-id="${subtask.id}" data-name="subtask" />`
+          : subtask.taskDetails
+      }</td>
+      <td>${
+        subtask.isEditing
+          ? `<input class="inputEdit2 input" type="text" value="${subtask.category}" data-task-index="${taskId}" data-subtask-id="${subtask.id}" data-name="category" />`
+          : subtask.category
+      }</td>
+      <td>${subtask.isDone ? "Done" : "Undone"}</td>
+      <td>
+      <button class="btn btnDone" onclick="toggleSubtaskStatus(${taskId}, ${
+            subtask.id
+          })">
+        ${subtask.isDone ? "Mark as Undone" : "Mark as Done"}
+      </button>
+      <button class="btn btnRemoveSub" onclick="removeSubtask(${taskId}, ${
+            subtask.id
+          })">
+        <i class="fa fa-trash-o"></i>
+      </button>
+    </td>
+
+      
+    </tr>
+  `;
+        }
+        // Modify the header to remove "Due Date" and "Priority" columns
+        const subtaskHeader = `
+  <tr>
+    <th>Subtask</th>
+    <th>Category</th>
+    <th>Status</th>
+    <th>Action</th>
+  </tr>
+`;
+
+        return subtaskHeader + subtaskRows;
+      }
+
+      function addSubtask(taskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+        if (taskIndex !== -1 && !tasks[taskIndex].isDone) {
+          const subtaskId = Date.now();
+          tasks[taskIndex].subtasks = tasks[taskIndex].subtasks || [];
+
+          const subtaskInput = document.createElement("input");
+          subtaskInput.classList.add("input");
+          subtaskInput.setAttribute("type", "text");
+          subtaskInput.setAttribute("placeholder", "Enter Subtask Details");
+          subtaskInput.setAttribute("data-name", "subtask");
+          subtaskInput.setAttribute("data-task-index", taskIndex);
+          subtaskInput.setAttribute("data-subtask-id", subtaskId);
+
+          const categoryInput = document.createElement("input");
+          categoryInput.classList.add("input");
+          categoryInput.setAttribute("type", "text");
+          categoryInput.setAttribute("placeholder", "Enter Category");
+          categoryInput.setAttribute("data-name", "category");
+          categoryInput.setAttribute("data-task-index", taskIndex);
+          categoryInput.setAttribute("data-subtask-id", subtaskId);
+
+          const addSubtaskButton = document.createElement("button");
+          addSubtaskButton.classList.add("btn", "btnSaveSubtask");
+          addSubtaskButton.setAttribute(
+            "onclick",
+            `saveSubtask(${taskId}, ${subtaskId})`
+          );
+          addSubtaskButton.innerText = "Save Subtask";
+
+          const cancelSubtaskButton = document.createElement("button");
+          cancelSubtaskButton.classList.add("btn", "btnRemove");
+          cancelSubtaskButton.setAttribute(
+            "onclick",
+            `cancelAddSubtask(${taskId}, ${subtaskId})`
+          );
+          cancelSubtaskButton.innerText = "Cancel";
+
+          const actionCell = document.createElement("td");
+          actionCell.setAttribute("colspan", "6");
+          actionCell.appendChild(subtaskInput);
+          actionCell.appendChild(categoryInput);
+          actionCell.appendChild(addSubtaskButton);
+          actionCell.appendChild(cancelSubtaskButton);
+
+          const newRow = document.createElement("tr");
+          newRow.appendChild(actionCell);
+
+          const rowIdentifier = `new-subtask-row-${taskId}-${subtaskId}`;
+          newRow.setAttribute("id", rowIdentifier);
+
+          const subtaskRow = document.createElement("tr");
+          const subtaskCell = document.createElement("td");
+          subtaskCell.setAttribute("colspan", "6");
+          subtaskCell.innerHTML = `
+      <table class="subtask-table">
+        <thead>
+          <tr>
+            <th>Subtask</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${renderSubtasks(tasks[taskIndex].subtasks, taskId)}
+        </tbody>
+      </table>
+    `;
+          subtaskRow.appendChild(subtaskCell);
+
+          const subtaskTableContainer = document.createElement("div");
+          subtaskTableContainer.classList.add("subtask-table-container");
+          subtaskTableContainer.appendChild(subtaskCell);
+
+          taskList.insertBefore(newRow, taskList.children[taskIndex + 1]);
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function toggleSubtaskStatus(taskId, subtaskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+        if (taskIndex !== -1 && !tasks[taskIndex].isEditing) {
+          const subtaskIndex = tasks[taskIndex].subtasks.findIndex(
+            (subtask) => subtask.id === subtaskId
+          );
+          if (subtaskIndex !== -1) {
+            tasks[taskIndex].subtasks[subtaskIndex].isDone =
+              !tasks[taskIndex].subtasks[subtaskIndex].isDone;
+
+            // Check if all subtasks are done, then mark the main task as done
+            tasks[taskIndex].isDone = tasks[taskIndex].subtasks.every(
+              (subtask) => subtask.isDone
+            );
+
+            // Re-render the main tasks to update the status
+            renderTasks();
+          }
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function removeSubtask(taskId, subtaskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+        if (taskIndex !== -1) {
+          const subtaskIndex = tasks[taskIndex].subtasks.findIndex(
+            (subtask) => subtask.id === subtaskId
+          );
+          if (subtaskIndex !== -1 && !tasks[taskIndex].isEditing) {
+            tasks[taskIndex].subtasks.splice(subtaskIndex, 1);
+            renderTasks(); // Call renderTasks() to update the table after removing the subtask
+          }
+        }
+        saveTasksToLocalStorage();
+      }
+
+      // Add event listener to the task table for handling remove button clicks
+      document
+        .getElementById("taskTable")
+        .addEventListener("click", (event) => {
+          const target = event.target;
+          if (target.classList.contains("btnRemove")) {
+            const taskId = parseInt(target.dataset.taskId);
+            const subtaskId = parseInt(target.dataset.subtaskId);
+            removeSubtask(taskId, subtaskId);
+          }
+        });
+
+      document.getElementById("taskList").addEventListener("click", (event) => {
+        const target = event.target;
+        if (target.classList.contains("btnDone")) {
+          const taskId = parseInt(target.dataset.taskId);
+          const subtaskId = parseInt(target.dataset.subtaskId);
+          toggleSubtaskStatus(taskId, subtaskId);
+        } else if (target.classList.contains("btnRemoveSub")) {
+          const taskId = parseInt(target.dataset.taskId);
+          const subtaskId = parseInt(target.dataset.subtaskId);
+          removeSubtask(taskId, subtaskId);
+        }
+      });
+
+      function cancelAddSubtask(taskId, subtaskId) {
+        const rowIdentifier = `new-subtask-row-${taskId}-${subtaskId}`;
+        const newRow = document.getElementById(rowIdentifier);
+        if (newRow) {
+          newRow.remove();
+        }
+      }
+
+      function createInput(name, value) {
+        return `<input class="inputRender" type="text" value="${value}" data-name="${name}" />`;
+      }
+
+      function renderTasks(tasksToRender = tasks) {
+        const taskList = document.getElementById("taskList");
+        taskList.innerHTML = "";
+
+        for (let i = 0; i < tasksToRender.length; i++) {
+          const task = tasksToRender[i];
+
+          const row = document.createElement("tr");
+          row.dataset.taskIndex = i;
+          row.innerHTML = `
+      <td>${
+        task.isEditing
+          ? '<input class="inputEdit input" type="text" value="' +
+            task.taskDetails +
+            '" data-name="taskDetails" />'
+          : task.taskDetails
+      }</td>
+      <td>${
+        task.isEditing
+          ? '<input class="inputEdit input" type="text" value="' +
+            task.category +
+            '" data-name="category" />'
+          : task.category
+      }</td>
+      <td>${
+        task.isEditing
+          ? '<input class="inputEdit input" type="date" value="' +
+            task.dueDate +
+            '" data-name="dueDate" />'
+          : task.dueDate
+      }</td>
+      <td>${
+        task.isEditing
+          ? `<select class="inputEdit input" data-name="priority">
+              <option value="Low" ${
+                task.priority === "Low" ? "selected" : ""
+              }>Low</option>
+              <option value="Medium" ${
+                task.priority === "Medium" ? "selected" : ""
+              }>Medium</option>
+              <option value="High" ${
+                task.priority === "High" ? "selected" : ""
+              }>High</option>
+            </select>`
+          : task.priority
+      }</td>
+      <td>${task.isDone ? "Done" : "Undone"}</td>
+      <td>
+        <button class="btn btnDone" onclick="toggleTaskStatus(${task.id})">${
+            task.isDone ? "Mark as Undone" : "Mark as Done"
+          }</button>
+        <button class="btn btnEdit" onclick="${
+          task.isEditing
+            ? "saveTask(" + task.id + ")"
+            : "editTask(" + task.id + ")"
+        }">${
+            task.isEditing
+              ? "<i class='fa fa-check'></i>"
+              : "<i class='fa fa-edit'></i>"
+          }</button>
+        <button class="btn btnRemove" onclick="removeTask(${
+          task.id
+        })"><i class="fa fa-trash-o"></i></button>
+        ${
+          task.isEditing
+            ? ""
+            : '<button class="btn btnAddSubtask" onclick="addSubtask(' +
+              task.id +
+              ')">Add Subtask</button>'
+        }
+      </td>
+    `;
+
+          row.setAttribute("data-task-index", i);
+
+          if (task.isEditing) {
+            row.classList.add("editing");
+          }
+
+          taskList.appendChild(row);
+
+          if (task.subtasks && task.subtasks.length > 0) {
+            const subtaskRow = document.createElement("tr");
+            const subtaskCell = document.createElement("td");
+            subtaskCell.setAttribute("colspan", "6");
+            subtaskCell.innerHTML = `
+        <table>
+          <tbody>
+            ${renderSubtasks(task.subtasks)}
+          </tbody>
+        </table>
+      `;
+            subtaskRow.appendChild(subtaskCell);
+            taskList.appendChild(subtaskRow);
+          }
+        }
+      }
+
+      function addTask() {
+        const taskInput = document.getElementById("taskInput");
+        const categoryInput = document.getElementById("categoryInput");
+        const dueDateInput = document.getElementById("dueDateInput");
+        const taskDetails = taskInput.value.trim();
+        const category = categoryInput.value.trim() || "N.A";
+        const dueDate = dueDateInput.value.trim() || "N.A";
+        const priority = priorityInput.value;
+
+        if (taskDetails !== "" && category !== "") {
+          const taskId = Date.now();
+          const newTask = {
+            taskDetails,
+            category,
+            dueDate,
+            priority,
+            id: taskId,
+            isEditing: false,
+            isDone: false,
+          };
+
+          // Add the newTask to the tasks array
+          tasks.push(newTask);
+
+          // Make a copy of the original tasks array for search functionality
+          originalTasks = tasks.slice();
+
+          // Update the tasks array based on the search text if present
+          const searchText = searchInput.value.trim();
+          filterTasksByDetails(searchText);
+
+          // Clear the input fields
+          taskInput.value = "";
+          categoryInput.value = "";
+          dueDateInput.value = "";
+
+          renderTasks();
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function removeTask(taskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+
+        if (taskIndex !== -1) {
+          tasks.splice(taskIndex, 1);
+          renderTasks();
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function toggleTaskStatus(taskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+
+        if (taskIndex !== -1 && !tasks[taskIndex].isEditing) {
+          tasks[taskIndex].isDone = !tasks[taskIndex].isDone;
+          renderTasks();
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function editTask(taskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+        if (taskIndex !== -1 && !tasks[taskIndex].isDone) {
+          tasks[taskIndex].isEditing = !tasks[taskIndex].isEditing;
+          renderTasks();
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function saveTask(taskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+        if (taskIndex !== -1) {
+          const taskInput = document.querySelector(`[data-name="taskDetails"]`);
+          const categoryInput = document.querySelector(
+            `[data-name="category"]`
+          );
+          const dueDateInput = document.querySelector(`[data-name="dueDate"]`);
+          const priorityInput = document.querySelector(
+            `[data-name="priority"]`
+          );
+          const taskDetails = taskInput.value.trim();
+          const category = categoryInput.value.trim() || "N.A";
+          const dueDate = dueDateInput.value.trim() || "N.A";
+          const priority = priorityInput.value;
+
+          if (taskDetails !== "" && category !== "") {
+            tasks[taskIndex].taskDetails = taskDetails;
+            tasks[taskIndex].category = category;
+            tasks[taskIndex].dueDate = dueDate;
+            tasks[taskIndex].priority = priority;
+            tasks[taskIndex].isEditing = false;
+            renderTasks();
+          }
+        }
+        saveTasksToLocalStorage();
+      }
+
+      function filterTasksByDetails(searchText) {
+        if (searchText.trim() === "") {
+          // If the search text is empty, show all tasks
+          tasks = originalTasks.slice();
+        } else {
+          // Otherwise, filter tasks based on the search text
+          tasks = originalTasks.filter((task) =>
+            task.taskDetails.toLowerCase().includes(searchText.toLowerCase())
+          );
+        }
+        renderTasks();
+      }
+
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("input", () => {
+        const searchText = searchInput.value.trim();
+        filterTasksByDetails(searchText);
+      });
+
+      function saveSubtask(taskId, subtaskId) {
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+
+        if (taskIndex !== -1) {
+          const taskInput = document.querySelector(
+            `[data-subtask-id="${subtaskId}"][data-name="subtask"]`
+          );
+          const categoryInput = document.querySelector(
+            `[data-subtask-id="${subtaskId}"][data-name="category"]`
+          );
+
+          const taskDetails = taskInput.value.trim();
+          const category = categoryInput.value.trim() || "N.A";
+
+          if (taskDetails !== "" && category !== "") {
+            const subtaskIndex = tasks[taskIndex].subtasks.findIndex(
+              (subtask) => subtask.id === subtaskId
+            );
+
+            if (subtaskIndex !== -1) {
+              tasks[taskIndex].subtasks[subtaskIndex].taskDetails = taskDetails;
+              tasks[taskIndex].subtasks[subtaskIndex].category = category;
+              tasks[taskIndex].subtasks[subtaskIndex].isEditing = false;
+
+              // Find the existing subtask row and replace it with the updated one
+              const subtaskRow = document.querySelector(
+                `[data-subtask-id="${subtaskId}"]`
+              );
+              const newSubtaskRow = document.createElement("tr");
+              newSubtaskRow.innerHTML = `
+          <td>${taskDetails}</td>
+          <td>${category}</td>
+          <td>
+            <button class="btn btnDone" onclick="toggleSubtaskStatus(${taskId}, ${subtaskId})">
+              ${
+                tasks[taskIndex].subtasks[subtaskIndex].isDone
+                  ? "Mark as Undone"
+                  : "Mark as Done"
+              }
+            </button>
+            <button class="btn btnRemove" onclick="removeSubtask(${taskId}, ${subtaskId})">Remove</button>
+          </td>
+        `;
+              newSubtaskRow.setAttribute("data-subtask-id", subtaskId);
+              subtaskRow.replaceWith(newSubtaskRow);
+
+              // Call renderSubtasks here to update the subtasks associated with the task
+              const parentTable = document.querySelector(
+                `[data-task-id="${taskId}"]`
+              );
+              const subtaskRowsHtml = renderSubtasks(
+                tasks[taskIndex].subtasks,
+                taskId
+              );
+              parentTable.querySelector("tbody").innerHTML = subtaskRowsHtml;
+
+              // Re-render the main tasks to display the updated subtasks
+              renderTasks();
+            } else {
+              // Create a new subtask if it doesn't exist in the tasks array
+              const newSubtask = {
+                id: subtaskId,
+                taskDetails,
+                category,
+                isEditing: false,
+                isDone: false,
+              };
+
+              tasks[taskIndex].subtasks.push(newSubtask);
+
+              // Rerender the main tasks to display the new subtask
+              renderTasks();
+            }
+          }
+        }
+        saveTasksToLocalStorage();
+      }
+
+      const priorityFilter = document.getElementById("priorityFilter");
+      priorityFilter.addEventListener("change", handlePriorityFilter);
+
+      function handlePriorityFilter() {
+        const selectedPriority = priorityFilter.value;
+        const taskRows = document.querySelectorAll(".task-table tbody tr");
+
+        for (const row of taskRows) {
+          const taskIndex = row.dataset.taskIndex;
+          const taskPriority = tasks[taskIndex].priority;
+
+          if (selectedPriority === "all" || taskPriority === selectedPriority) {
+            row.style.display = "table-row";
+          } else {
+            row.style.display = "none";
+          }
+        }
+      }
+
+      function sortTasksByDueDate(sortOrder) {
+        tasks.sort((taskA, taskB) => {
+          const dueDateA = new Date(taskA.dueDate).getTime();
+          const dueDateB = new Date(taskB.dueDate).getTime();
+
+          if (sortOrder === "asc") {
+            return dueDateA - dueDateB;
+          } else if (sortOrder === "desc") {
+            return dueDateB - dueDateA;
+          } else {
+            return 0; // No sorting
+          }
+        });
+
+        renderTasks();
+      }
+
+      function saveTasksToLocalStorage() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+      }
+
+      function loadTasksFromLocalStorage() {
+        const storedTasks = localStorage.getItem("tasks");
+        if (storedTasks) {
+          tasks = JSON.parse(storedTasks);
+          originalTasks = tasks.slice();
+          renderTasks();
+        }
+      }
+
+      const sortByDueDate = document.getElementById("sortByDueDate");
+      sortByDueDate.addEventListener("change", () => {
+        const sortOrder = sortByDueDate.value;
+        sortTasksByDueDate(sortOrder);
+      });
+
+      renderTasks(); // Call the renderTasks() function to display the initial list
+      handlePriorityFilter();
+      loadTasksFromLocalStorage();
+    </script>
+  </body>
+</html>
