@@ -103,8 +103,8 @@
       }
 
       .table-wrapper {
-        border-radius: 10px; /* Add this property for rounded corners */
-        overflow: hidden; /* Ensure that the rounded corners are visible */
+        border-radius: 10px;
+        overflow: hidden;
       }
 
       .task-table {
@@ -299,7 +299,6 @@
         margin-bottom: 10px;
       }
 
-      /* Adjust the filter label and dropdown styles */
       .filter-container label {
         font-size: 16px;
         color: #ffffff;
@@ -346,11 +345,11 @@
       }
 
       .completed-task {
-        color: green !important; /* Light green background color for completed tasks */
+        color: green !important;
       }
 
       .undone-task {
-        background-color: #f7c8c8; /* Light red background color for undone tasks */
+        background-color: #f7c8c8;
       }
     </style>
   </head>
@@ -471,7 +470,6 @@
     </tr>
   `;
         }
-        // Modify the header to remove "Due Date" and "Priority" columns
         const subtaskHeader = `
   <tr>
     <th>Subtask</th>
@@ -573,13 +571,11 @@
           if (subtaskIndex !== -1) {
             tasks[taskIndex].subtasks[subtaskIndex].isDone =
               !tasks[taskIndex].subtasks[subtaskIndex].isDone;
-
-            // Check if all subtasks are done, then mark the main task as done
+            
             tasks[taskIndex].isDone = tasks[taskIndex].subtasks.every(
               (subtask) => subtask.isDone
             );
 
-            // Re-render the main tasks to update the status
             renderTasks();
           }
         }
@@ -594,13 +590,12 @@
           );
           if (subtaskIndex !== -1 && !tasks[taskIndex].isEditing) {
             tasks[taskIndex].subtasks.splice(subtaskIndex, 1);
-            renderTasks(); // Call renderTasks() to update the table after removing the subtask
+            renderTasks();
           }
         }
         saveTasksToLocalStorage();
       }
 
-      // Add event listener to the task table for handling remove button clicks
       document
         .getElementById("taskTable")
         .addEventListener("click", (event) => {
@@ -756,17 +751,13 @@
             isDone: false,
           };
 
-          // Add the newTask to the tasks array
           tasks.push(newTask);
 
-          // Make a copy of the original tasks array for search functionality
           originalTasks = tasks.slice();
 
-          // Update the tasks array based on the search text if present
           const searchText = searchInput.value.trim();
           filterTasksByDetails(searchText);
 
-          // Clear the input fields
           taskInput.value = "";
           categoryInput.value = "";
           dueDateInput.value = "";
@@ -835,10 +826,8 @@
 
       function filterTasksByDetails(searchText) {
         if (searchText.trim() === "") {
-          // If the search text is empty, show all tasks
           tasks = originalTasks.slice();
         } else {
-          // Otherwise, filter tasks based on the search text
           tasks = originalTasks.filter((task) =>
             task.taskDetails.toLowerCase().includes(searchText.toLowerCase())
           );
@@ -898,7 +887,6 @@
               newSubtaskRow.setAttribute("data-subtask-id", subtaskId);
               subtaskRow.replaceWith(newSubtaskRow);
 
-              // Call renderSubtasks here to update the subtasks associated with the task
               const parentTable = document.querySelector(
                 `[data-task-id="${taskId}"]`
               );
@@ -908,10 +896,8 @@
               );
               parentTable.querySelector("tbody").innerHTML = subtaskRowsHtml;
 
-              // Re-render the main tasks to display the updated subtasks
               renderTasks();
             } else {
-              // Create a new subtask if it doesn't exist in the tasks array
               const newSubtask = {
                 id: subtaskId,
                 taskDetails,
@@ -922,7 +908,6 @@
 
               tasks[taskIndex].subtasks.push(newSubtask);
 
-              // Rerender the main tasks to display the new subtask
               renderTasks();
             }
           }
@@ -985,7 +970,7 @@
         sortTasksByDueDate(sortOrder);
       });
 
-      renderTasks(); // Call the renderTasks() function to display the initial list
+      renderTasks();
       handlePriorityFilter();
       loadTasksFromLocalStorage();
     </script>
