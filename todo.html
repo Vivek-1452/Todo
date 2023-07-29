@@ -388,6 +388,19 @@
         <button class="add-task-button" onclick="addTask()">Add Task</button>
       </div>
       <div class="filter-container">
+        <label for="priorityFilter">Search:</label>
+        <input
+          class="task-input searchTask"
+          type="text"
+          id="searchInput"
+          placeholder="Search by Task Details"
+        />
+        <label for="sortByDueDate">Sort by Due Date:</label>
+        <select id="sortByDueDate">
+          <option value="none">None</option>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
         <label for="priorityFilter">Filter by Priority:</label>
         <select id="priorityFilter">
           <option value="all">All</option>
@@ -395,20 +408,22 @@
           <option value="Medium">Medium</option>
           <option value="High">High</option>
         </select>
-        <label for="sortByDueDate">Sort by Due Date:</label>
-        <select id="sortByDueDate">
-          <option value="none">None</option>
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
 
-        <!-- search bar -->
-        <label for="priorityFilter">Search:</label>
+        <label for="statusFilter">Filter by Status:</label>
+        <select id="statusFilter">
+          <option value="all">All</option>
+          <option value="done">Done</option>
+          <option value="undone">Undone</option>
+        </select>
+      </div>
+
+      <div class="filter-container">
+        <label for="categoryFilter">Search by Category:</label>
         <input
           class="task-input searchTask"
           type="text"
-          id="searchInput"
-          placeholder="Search by Task Details"
+          id="categoryInputFilter"
+          placeholder="Search by Category"
         />
       </div>
       <div class="table-wrapper">
@@ -571,7 +586,7 @@
           if (subtaskIndex !== -1) {
             tasks[taskIndex].subtasks[subtaskIndex].isDone =
               !tasks[taskIndex].subtasks[subtaskIndex].isDone;
-            
+
             tasks[taskIndex].isDone = tasks[taskIndex].subtasks.every(
               (subtask) => subtask.isDone
             );
@@ -752,7 +767,6 @@
           };
 
           tasks.push(newTask);
-
           originalTasks = tasks.slice();
 
           const searchText = searchInput.value.trim();
@@ -835,6 +849,25 @@
         renderTasks();
       }
 
+      const statusFilter = document.getElementById("statusFilter");
+      statusFilter.addEventListener("change", handleStatusFilter);
+
+      function handleStatusFilter() {
+        const selectedStatus = statusFilter.value;
+        const taskRows = document.querySelectorAll(".task-table tbody tr");
+
+        for (const row of taskRows) {
+          const taskIndex = row.dataset.taskIndex;
+          const taskStatus = tasks[taskIndex].isDone ? "done" : "undone";
+
+          if (selectedStatus === "all" || taskStatus === selectedStatus) {
+            row.style.display = "table-row";
+          } else {
+            row.style.display = "none";
+          }
+        }
+      }
+
       const searchInput = document.getElementById("searchInput");
       searchInput.addEventListener("input", () => {
         const searchText = searchInput.value.trim();
@@ -865,7 +898,6 @@
               tasks[taskIndex].subtasks[subtaskIndex].category = category;
               tasks[taskIndex].subtasks[subtaskIndex].isEditing = false;
 
-              // Find the existing subtask row and replace it with the updated one
               const subtaskRow = document.querySelector(
                 `[data-subtask-id="${subtaskId}"]`
               );
@@ -944,7 +976,7 @@
           } else if (sortOrder === "desc") {
             return dueDateB - dueDateA;
           } else {
-            return 0; // No sorting
+            return 0;
           }
         });
 
@@ -969,6 +1001,40 @@
         const sortOrder = sortByDueDate.value;
         sortTasksByDueDate(sortOrder);
       });
+
+      const categoryInputFilter = document.getElementById(
+        "categoryInputFilter"
+      );
+      categoryInputFilter.addEventListener("input", () => {
+        const searchCategory = categoryInputFilter.value.trim();
+        filterTasksByCategory(searchCategory);
+      });
+
+      function filterTasksByCategory(searchCategory) {
+        if (searchCategory.trim() === "") {
+          tasks = originalTasks.slice();
+        } else {
+          tasks = originalTasks.filter((task) =>
+            task.category.toLowerCase().includes(searchCategory.toLowerCase())
+          );
+        }
+        renderTasks();
+      }
+
+      function filterTasksByDetails(searchText) {
+        if (searchText.trim() === "") {
+          tasks = originalTasks.slice();
+        } else {
+          tasks = originalTasks.filter(
+            (task) =>
+              task.taskDetails
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
+              task.category.toLowerCase().includes(searchText.toLowerCase())
+          );
+        }
+        renderTasks();
+      }
 
       renderTasks();
       handlePriorityFilter();
